@@ -7,11 +7,7 @@ require("dotenv").config();
 // Initialize express app
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:3000', // Allow only requests from this origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
-  credentials: true, // Allow credentials (optional, if you use cookies)
-}));
+app.use(cors());
 
 // Connect to MongoDB
 connectDB();
@@ -20,7 +16,16 @@ connectDB();
 app.use(express.json());
 
 // Routes
-app.use("/", authRoutes);
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+app.use('/auth', authRoutes);
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the Home Page!');
+});
 
 // Start the server
 const PORT = process.env.PORT || 5000;
