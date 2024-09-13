@@ -8,7 +8,14 @@ const auth = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err && err.name === 'TokenExpiredError') {
+        return res.status(401).send('Unauthorized: Token has expired');
+      } else if (err) {
+        return res.status(401).send('Unauthorized: Invalid token');
+      }
+      console.log(decoded); // Token is valid
+    });
     req.user = decoded;
     next();
   } catch (err) {
